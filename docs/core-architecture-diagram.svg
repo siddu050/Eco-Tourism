@@ -1,0 +1,165 @@
+<svg width="1600" height="980" viewBox="0 0 1600 980" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="1480" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F2E8"/>
+      <stop offset="0.55" stop-color="#EAF4F1"/>
+      <stop offset="1" stop-color="#E6EEF7"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="160" y1="120" x2="1450" y2="250" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F6F5F"/>
+      <stop offset="1" stop-color="#163B63"/>
+    </linearGradient>
+    <linearGradient id="frontend" x1="120" y1="0" x2="480" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF8E7"/>
+      <stop offset="1" stop-color="#FFE7B8"/>
+    </linearGradient>
+    <linearGradient id="service" x1="0" y1="0" x2="520" y2="240" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDF5D9"/>
+      <stop offset="1" stop-color="#F8D88C"/>
+    </linearGradient>
+    <linearGradient id="backend" x1="0" y1="0" x2="520" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8F7F2"/>
+      <stop offset="1" stop-color="#B9E2D2"/>
+    </linearGradient>
+    <linearGradient id="data" x1="0" y1="0" x2="520" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8F0FC"/>
+      <stop offset="1" stop-color="#BFD4F3"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%" filterUnits="objectBoundingBox">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#11324D" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#2E5B8A"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#1F6F5F"/>
+    </marker>
+    <marker id="arrowGold" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#B57A12"/>
+    </marker>
+    <style>
+      .title { font: 700 40px 'Segoe UI', Arial, sans-serif; fill: #FFFFFF; }
+      .subtitle { font: 400 18px 'Segoe UI', Arial, sans-serif; fill: #DCE9F4; }
+      .panelTitle { font: 700 26px 'Segoe UI', Arial, sans-serif; fill: #10263F; }
+      .panelCopy { font: 500 16px 'Segoe UI', Arial, sans-serif; fill: #35516D; }
+      .sectionLabel { font: 700 15px 'Segoe UI', Arial, sans-serif; fill: #58728B; letter-spacing: 1.3px; }
+      .boxTitle { font: 700 20px 'Segoe UI', Arial, sans-serif; fill: #10263F; }
+      .boxText { font: 500 15px 'Segoe UI', Arial, sans-serif; fill: #35516D; }
+      .smallText { font: 500 14px 'Segoe UI', Arial, sans-serif; fill: #47627C; }
+      .flowLabel { font: 700 15px 'Segoe UI', Arial, sans-serif; fill: #153B61; }
+      .flowLabelGold { font: 700 15px 'Segoe UI', Arial, sans-serif; fill: #8A5D0E; }
+      .flowLabelTeal { font: 700 15px 'Segoe UI', Arial, sans-serif; fill: #195B4F; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" fill="url(#bg)"/>
+  <circle cx="130" cy="110" r="140" fill="#FFFFFF" fill-opacity="0.22"/>
+  <circle cx="1490" cy="850" r="180" fill="#FFFFFF" fill-opacity="0.18"/>
+  <circle cx="1440" cy="130" r="110" fill="#F8D88C" fill-opacity="0.18"/>
+
+  <rect x="90" y="70" width="1420" height="140" rx="30" fill="url(#hero)" filter="url(#shadow)"/>
+  <text x="135" y="128" class="sectionLabel" fill="#BDE8D9">INDIAN JOURNEYS WEB APP</text>
+  <text x="135" y="170" class="title">Core Architecture Overview</text>
+  <text x="135" y="201" class="subtitle">Presentation-ready view of the React frontend, FastAPI backend, auth, booking flows, AI helper, and SQLite data layer.</text>
+
+  <rect x="90" y="250" width="410" height="630" rx="28" fill="url(#frontend)" stroke="#E5C980" stroke-width="2" filter="url(#shadow)"/>
+  <text x="125" y="300" class="sectionLabel">CLIENT LAYER</text>
+  <text x="125" y="336" class="panelTitle">React + Vite Frontend</text>
+  <text x="125" y="364" class="panelCopy">Single-page app with route-driven travel planning experience.</text>
+
+  <rect x="125" y="395" width="340" height="120" rx="22" fill="#FFFDF7" stroke="#F0D39A" stroke-width="2"/>
+  <text x="150" y="430" class="boxTitle">Presentation Pages</text>
+  <text x="150" y="458" class="boxText">Home, Discover, Guides, Maps, About</text>
+  <text x="150" y="485" class="boxText">Destination cards and image-rich browsing</text>
+
+  <rect x="125" y="535" width="340" height="140" rx="22" fill="#FFFDF7" stroke="#F0D39A" stroke-width="2"/>
+  <text x="150" y="570" class="boxTitle">User Journey Pages</text>
+  <text x="150" y="598" class="boxText">Auth, Location Details, Booking Confirmation</text>
+  <text x="150" y="625" class="boxText">My Trips, Favorites, review submission</text>
+  <text x="150" y="652" class="boxText">Local storage keeps JWT token and username</text>
+
+  <rect x="125" y="695" width="340" height="150" rx="22" fill="#FFFDF7" stroke="#F0D39A" stroke-width="2"/>
+  <text x="150" y="730" class="boxTitle">Embedded Assistant UI</text>
+  <text x="150" y="758" class="boxText">Floating Chatbot component</text>
+  <text x="150" y="785" class="boxText">Calls AI endpoints for trip suggestions</text>
+  <text x="150" y="812" class="boxText">Fallback messaging if backend is unavailable</text>
+
+  <rect x="545" y="250" width="500" height="630" rx="28" fill="url(#backend)" stroke="#9DD0BE" stroke-width="2" filter="url(#shadow)"/>
+  <text x="580" y="300" class="sectionLabel">APPLICATION LAYER</text>
+  <text x="580" y="336" class="panelTitle">FastAPI Backend</text>
+  <text x="580" y="364" class="panelCopy">REST API, token-based auth, business rules, serialization, and static image hosting.</text>
+
+  <rect x="580" y="395" width="430" height="118" rx="22" fill="#F9FFFC" stroke="#B6DECE" stroke-width="2"/>
+  <text x="605" y="430" class="boxTitle">Entry and Platform Services</text>
+  <text x="605" y="458" class="boxText">`main.py` bootstraps app, CORS, router, and `/static` mount</text>
+  <text x="605" y="485" class="boxText">Axios frontend client targets `http://localhost:8000`</text>
+
+  <rect x="580" y="533" width="205" height="145" rx="22" fill="#F9FFFC" stroke="#B6DECE" stroke-width="2"/>
+  <text x="603" y="568" class="boxTitle">Auth Module</text>
+  <text x="603" y="596" class="boxText">Register and login</text>
+  <text x="603" y="623" class="boxText">Password hashing</text>
+  <text x="603" y="650" class="boxText">JWT creation and validation</text>
+
+  <rect x="805" y="533" width="205" height="145" rx="22" fill="#F9FFFC" stroke="#B6DECE" stroke-width="2"/>
+  <text x="828" y="568" class="boxTitle">Travel APIs</text>
+  <text x="828" y="596" class="boxText">Search locations</text>
+  <text x="828" y="623" class="boxText">Booking, payment, cancel</text>
+  <text x="828" y="650" class="boxText">Favorites and reviews</text>
+
+  <rect x="580" y="700" width="205" height="145" rx="22" fill="#F9FFFC" stroke="#B6DECE" stroke-width="2"/>
+  <text x="603" y="735" class="boxTitle">Admin APIs</text>
+  <text x="603" y="763" class="boxText">Overview dashboard</text>
+  <text x="603" y="790" class="boxText">Edit locations and bookings</text>
+  <text x="603" y="817" class="boxText">Delete reviews</text>
+
+  <rect x="805" y="700" width="205" height="145" rx="22" fill="#F9FFFC" stroke="#B6DECE" stroke-width="2"/>
+  <text x="828" y="735" class="boxTitle">AI Helper APIs</text>
+  <text x="828" y="763" class="boxText">`/ai/chat` mock assistant</text>
+  <text x="828" y="790" class="boxText">`/ai/suggestions` cards</text>
+  <text x="828" y="817" class="boxText">Trip planning prompts and hints</text>
+
+  <rect x="1090" y="250" width="420" height="630" rx="28" fill="url(#data)" stroke="#A5BFE8" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1125" y="300" class="sectionLabel">DATA LAYER</text>
+  <text x="1125" y="336" class="panelTitle">Persistence and Assets</text>
+  <text x="1125" y="364" class="panelCopy">SQLAlchemy ORM on SQLite plus local destination images used by the UI.</text>
+
+  <rect x="1125" y="395" width="350" height="150" rx="22" fill="#FBFDFF" stroke="#C4D6F1" stroke-width="2"/>
+  <text x="1150" y="430" class="boxTitle">SQLite Database</text>
+  <text x="1150" y="458" class="boxText">`tourism.db` stores operational app data</text>
+  <text x="1150" y="485" class="boxText">SessionLocal manages request-scoped DB sessions</text>
+  <text x="1150" y="512" class="boxText">Schema helper backfills booking payment fields</text>
+
+  <rect x="1125" y="565" width="350" height="165" rx="22" fill="#FBFDFF" stroke="#C4D6F1" stroke-width="2"/>
+  <text x="1150" y="600" class="boxTitle">Core Entities</text>
+  <text x="1150" y="628" class="boxText">Users</text>
+  <text x="1235" y="628" class="boxText">Locations</text>
+  <text x="1355" y="628" class="boxText">Bookings</text>
+  <text x="1150" y="655" class="boxText">Favorites</text>
+  <text x="1235" y="655" class="boxText">Reviews</text>
+  <text x="1150" y="690" class="smallText">Relationships connect users to saved places, bookings, and reviews.</text>
+
+  <rect x="1125" y="750" width="350" height="95" rx="22" fill="#FBFDFF" stroke="#C4D6F1" stroke-width="2"/>
+  <text x="1150" y="785" class="boxTitle">Static Media</text>
+  <text x="1150" y="813" class="boxText">`/static/images/*` serves destination photos and fallback images</text>
+
+  <path d="M465 470H560" stroke="#B57A12" stroke-width="4" marker-end="url(#arrowGold)"/>
+  <path d="M465 620H560" stroke="#B57A12" stroke-width="4" marker-end="url(#arrowGold)"/>
+  <path d="M465 770H560" stroke="#B57A12" stroke-width="4" marker-end="url(#arrowGold)"/>
+  <text x="472" y="456" class="flowLabelGold">HTTP via Axios</text>
+  <text x="472" y="606" class="flowLabelGold">Bearer token on protected calls</text>
+  <text x="472" y="756" class="flowLabelGold">Chat and suggestion requests</text>
+
+  <path d="M1010 455H1110" stroke="#1F6F5F" stroke-width="4" marker-end="url(#arrowTeal)"/>
+  <path d="M1010 605H1110" stroke="#1F6F5F" stroke-width="4" marker-end="url(#arrowTeal)"/>
+  <path d="M1010 772H1110" stroke="#1F6F5F" stroke-width="4" marker-end="url(#arrowTeal)"/>
+  <text x="1018" y="440" class="flowLabelTeal">Read image paths and app state</text>
+  <text x="1018" y="590" class="flowLabelTeal">CRUD against travel entities</text>
+  <text x="1018" y="757" class="flowLabelTeal">Admin and booking status updates</text>
+
+  <path d="M1240 545C1240 575 1285 585 1285 610" stroke="#2E5B8A" stroke-width="3" marker-end="url(#arrowBlue)"/>
+  <path d="M1360 545C1360 575 1330 585 1330 610" stroke="#2E5B8A" stroke-width="3" marker-end="url(#arrowBlue)"/>
+  <path d="M1285 732V745" stroke="#2E5B8A" stroke-width="3" marker-end="url(#arrowBlue)"/>
+
+  <rect x="140" y="900" width="1320" height="46" rx="18" fill="#FFFFFF" fill-opacity="0.78" stroke="#D7E0EA"/>
+  <text x="170" y="929" class="smallText">Primary flows: Discover destinations -> view location details -> create booking -> pay or cancel in My Trips -> admins monitor the system -> chatbot supports trip planning.</text>
+</svg>

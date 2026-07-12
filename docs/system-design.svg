@@ -1,0 +1,174 @@
+<svg width="1600" height="980" viewBox="0 0 1600 980" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Indian Journeys System Design</title>
+  <desc id="desc">Short system design diagram for the Indian Journeys eco-tourism app showing the React frontend, FastAPI backend, SQLite database, and external integrations.</desc>
+  <defs>
+    <linearGradient id="bg" x1="120" y1="60" x2="1490" y2="940" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F4EA"/>
+      <stop offset="0.55" stop-color="#EEF7F3"/>
+      <stop offset="1" stop-color="#EAF1F9"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="90" y1="70" x2="1500" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F6B5B"/>
+      <stop offset="1" stop-color="#1D4268"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%" filterUnits="objectBoundingBox">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#17324D" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#2E5B8A"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+      <path d="M0 0L14 7L0 14V0Z" fill="#1F6B5B"/>
+    </marker>
+    <style>
+      .title { font: 700 38px 'Segoe UI', Arial, sans-serif; fill: #FFFFFF; }
+      .subtitle { font: 400 18px 'Segoe UI', Arial, sans-serif; fill: #D7E6F3; }
+      .chip { font: 700 14px 'Segoe UI', Arial, sans-serif; letter-spacing: 1.2px; fill: #D5F2E5; }
+      .panel { fill: rgba(255,255,255,0.82); stroke: #D1DEE8; stroke-width: 2; }
+      .panelTitle { font: 700 24px 'Segoe UI', Arial, sans-serif; fill: #15314C; }
+      .panelCopy { font: 500 15px 'Segoe UI', Arial, sans-serif; fill: #4B647D; }
+      .sectionLabel { font: 700 14px 'Segoe UI', Arial, sans-serif; letter-spacing: 1.3px; fill: #5A7289; }
+      .box { fill: #FFFFFF; stroke: #9FBDD7; stroke-width: 2; }
+      .boxGreen { fill: #FFFFFF; stroke: #91C5B5; stroke-width: 2; }
+      .boxBlue { fill: #FFFFFF; stroke: #B8CCE5; stroke-width: 2; }
+      .boxTitle { font: 700 19px 'Segoe UI', Arial, sans-serif; fill: #183550; }
+      .boxText { font: 500 15px 'Segoe UI', Arial, sans-serif; fill: #4A647B; }
+      .boxMini { font: 500 14px 'Segoe UI', Arial, sans-serif; fill: #607A92; }
+      .flow { font: 700 14px 'Segoe UI', Arial, sans-serif; fill: #1E4F7A; }
+      .flowTeal { font: 700 14px 'Segoe UI', Arial, sans-serif; fill: #1E6657; }
+      .footer { font: 500 14px 'Segoe UI', Arial, sans-serif; fill: #516A82; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" fill="url(#bg)"/>
+  <circle cx="145" cy="110" r="120" fill="#FFFFFF" fill-opacity="0.22"/>
+  <circle cx="1510" cy="840" r="190" fill="#FFFFFF" fill-opacity="0.18"/>
+  <circle cx="1420" cy="130" r="95" fill="#F0D8A0" fill-opacity="0.22"/>
+
+  <rect x="90" y="70" width="1420" height="132" rx="28" fill="url(#hero)" filter="url(#shadow)"/>
+  <text x="132" y="118" class="chip">INDIAN JOURNEYS ECO-TOURISM APP</text>
+  <text x="132" y="162" class="title">Short System Design</text>
+  <text x="132" y="192" class="subtitle">React frontend on port 5173 talks to a FastAPI backend on port 8000, which reads and writes the local SQLite tourism database.</text>
+
+  <rect x="90" y="240" width="320" height="660" rx="28" class="panel" filter="url(#shadow)"/>
+  <text x="120" y="288" class="sectionLabel">CLIENT LAYER</text>
+  <text x="120" y="324" class="panelTitle">Browser + React SPA</text>
+  <text x="120" y="350" class="panelCopy">Main screens, route navigation, and client-side trip helpers.</text>
+
+  <rect x="120" y="388" width="260" height="104" rx="22" class="box"/>
+  <text x="145" y="422" class="boxTitle">Traveler / Admin</text>
+  <text x="145" y="450" class="boxText">Use the same web app UI</text>
+  <text x="145" y="475" class="boxMini">Login decides access to trips, reviews, favorites, and admin tools.</text>
+
+  <rect x="120" y="522" width="260" height="176" rx="22" class="box"/>
+  <text x="145" y="556" class="boxTitle">Frontend Features</text>
+  <text x="145" y="585" class="boxText">Home, Discover, Location Details</text>
+  <text x="145" y="612" class="boxText">Smart Booking, Confirmation, My Trips</text>
+  <text x="145" y="639" class="boxText">Favorites, Reviews, Admin Dashboard</text>
+  <text x="145" y="666" class="boxText">Floating AI chatbot</text>
+
+  <rect x="120" y="726" width="260" height="144" rx="22" class="box"/>
+  <text x="145" y="760" class="boxTitle">Browser Helpers</text>
+  <text x="145" y="789" class="boxText">`localStorage` keeps token + username</text>
+  <text x="145" y="816" class="boxText">`sessionStorage` keeps booking draft</text>
+  <text x="145" y="843" class="boxText">Geolocation, Google Maps, UPI links</text>
+
+  <rect x="450" y="240" width="360" height="660" rx="28" class="panel" filter="url(#shadow)"/>
+  <text x="480" y="288" class="sectionLabel">API LAYER</text>
+  <text x="480" y="324" class="panelTitle">FastAPI Application</text>
+  <text x="480" y="350" class="panelCopy">Receives Axios requests, applies business rules, and serializes app data.</text>
+
+  <rect x="480" y="388" width="300" height="86" rx="22" class="boxGreen"/>
+  <text x="505" y="422" class="boxTitle">Main App + CORS + Router</text>
+  <text x="505" y="450" class="boxText">`main.py` mounts `/static` and loads routes.</text>
+
+  <rect x="480" y="504" width="140" height="130" rx="22" class="boxGreen"/>
+  <text x="502" y="538" class="boxTitle">Auth</text>
+  <text x="502" y="566" class="boxText">Register / login</text>
+  <text x="502" y="592" class="boxText">Password hashing</text>
+  <text x="502" y="618" class="boxText">JWT validation</text>
+
+  <rect x="640" y="504" width="140" height="130" rx="22" class="boxGreen"/>
+  <text x="662" y="538" class="boxTitle">Catalog</text>
+  <text x="662" y="566" class="boxText">Search locations</text>
+  <text x="662" y="592" class="boxText">Details + reviews</text>
+  <text x="662" y="618" class="boxText">Favorites</text>
+
+  <rect x="480" y="664" width="140" height="130" rx="22" class="boxGreen"/>
+  <text x="502" y="698" class="boxTitle">Bookings</text>
+  <text x="502" y="726" class="boxText">Create booking</text>
+  <text x="502" y="752" class="boxText">Pay / cancel</text>
+  <text x="502" y="778" class="boxText">My Trips</text>
+
+  <rect x="640" y="664" width="140" height="130" rx="22" class="boxGreen"/>
+  <text x="662" y="698" class="boxTitle">Admin + AI</text>
+  <text x="662" y="726" class="boxText">Overview + edits</text>
+  <text x="662" y="752" class="boxText">Review delete</text>
+  <text x="662" y="778" class="boxText">Mock AI chat</text>
+
+  <rect x="850" y="240" width="320" height="660" rx="28" class="panel" filter="url(#shadow)"/>
+  <text x="880" y="288" class="sectionLabel">DATA LAYER</text>
+  <text x="880" y="324" class="panelTitle">SQLite + Local Assets</text>
+  <text x="880" y="350" class="panelCopy">All app records stay local to the backend folder.</text>
+
+  <rect x="880" y="388" width="260" height="180" rx="22" class="boxBlue"/>
+  <text x="905" y="422" class="boxTitle">`tourism.db`</text>
+  <text x="905" y="450" class="boxText">Tables:</text>
+  <text x="905" y="478" class="boxText">Users, Locations, Bookings</text>
+  <text x="905" y="505" class="boxText">Favorites, Reviews</text>
+  <text x="905" y="534" class="boxMini">SQLAlchemy sessions open per request and commit updates back to SQLite.</text>
+
+  <rect x="880" y="600" width="260" height="110" rx="22" class="boxBlue"/>
+  <text x="905" y="634" class="boxTitle">Schema Safety</text>
+  <text x="905" y="662" class="boxText">`ensure_sqlite_schema()` backfills new booking fields</text>
+  <text x="905" y="688" class="boxMini">payment status, payment reference, pricing breakdown</text>
+
+  <rect x="880" y="742" width="260" height="128" rx="22" class="boxBlue"/>
+  <text x="905" y="776" class="boxTitle">Static Images</text>
+  <text x="905" y="804" class="boxText">`backend/static/images/*`</text>
+  <text x="905" y="831" class="boxText">served by FastAPI at `/static`</text>
+
+  <rect x="1210" y="240" width="300" height="660" rx="28" class="panel" filter="url(#shadow)"/>
+  <text x="1240" y="288" class="sectionLabel">EXTERNAL TOUCHPOINTS</text>
+  <text x="1240" y="324" class="panelTitle">Browser Integrations</text>
+  <text x="1240" y="350" class="panelCopy">The app uses a few direct browser-side helpers instead of extra backend services.</text>
+
+  <rect x="1240" y="388" width="240" height="104" rx="22" class="box"/>
+  <text x="1265" y="422" class="boxTitle">Geolocation API</text>
+  <text x="1265" y="450" class="boxText">Reads user coordinates for distance-aware pricing.</text>
+
+  <rect x="1240" y="526" width="240" height="104" rx="22" class="box"/>
+  <text x="1265" y="560" class="boxTitle">Google Maps</text>
+  <text x="1265" y="588" class="boxText">Route search, directions, nearby service links.</text>
+
+  <rect x="1240" y="664" width="240" height="104" rx="22" class="box"/>
+  <text x="1265" y="698" class="boxTitle">QuickChart QR</text>
+  <text x="1265" y="726" class="boxText">Creates QR image for UPI payment intent.</text>
+
+  <rect x="1240" y="802" width="240" height="68" rx="22" class="box"/>
+  <text x="1265" y="842" class="boxTitle">UPI App</text>
+  <text x="1360" y="842" class="boxText">payment handoff</text>
+
+  <path d="M380 610H450" stroke="#2E5B8A" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="392" y="596" class="flow">Axios + JWT headers</text>
+
+  <path d="M780 452H850" stroke="#1F6B5B" stroke-width="4" marker-end="url(#arrowTeal)"/>
+  <path d="M780 720H850" stroke="#1F6B5B" stroke-width="4" marker-end="url(#arrowTeal)"/>
+  <text x="792" y="438" class="flowTeal">read and write app data</text>
+  <text x="792" y="706" class="flowTeal">booking status + image lookup</text>
+
+  <path d="M380 798C510 798 1040 820 1240 820" stroke="#2E5B8A" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="620" y="780" class="flow">Browser opens UPI payment link</text>
+
+  <path d="M380 780C600 780 980 705 1240 705" stroke="#2E5B8A" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="690" y="688" class="flow">QR image request</text>
+
+  <path d="M380 760C560 760 980 568 1240 568" stroke="#2E5B8A" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="700" y="550" class="flow">Open map and route links</text>
+
+  <path d="M380 744C560 744 980 430 1240 430" stroke="#2E5B8A" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="682" y="414" class="flow">Read live location for pricing</text>
+
+  <rect x="120" y="922" width="1360" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.82" stroke="#D5E0EA"/>
+  <text x="146" y="945" class="footer">Main path: user browses destinations in React, requests data from FastAPI, FastAPI stores records in SQLite, and the browser opens maps or UPI tools when needed.</text>
+</svg>

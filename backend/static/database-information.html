@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Database Information</title>
+    <style>
+      :root {
+        --bg: #f6f8fc;
+        --card: #ffffff;
+        --primary: #1a237e;
+        --secondary: #283593;
+        --accent: #ffd700;
+        --text: #212121;
+        --muted: #5f6b7a;
+        --border: #dbe2ef;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(160deg, #eef2ff 0%, #f8f9fa 55%, #eef7f2 100%);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 20px 60px;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 20px 45px rgba(26, 35, 126, 0.18);
+      }
+
+      .hero h1 {
+        margin: 0 0 10px;
+        font-size: 2rem;
+      }
+
+      .hero p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.88);
+        line-height: 1.6;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-top: 24px;
+      }
+
+      .card,
+      .section {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 12px 28px rgba(33, 33, 33, 0.06);
+      }
+
+      .card {
+        padding: 22px;
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        color: var(--primary);
+        font-size: 1.05rem;
+      }
+
+      .card strong {
+        display: block;
+        font-size: 1.5rem;
+        color: var(--secondary);
+      }
+
+      .card span {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .section {
+        margin-top: 24px;
+        padding: 26px;
+      }
+
+      .section h2 {
+        margin: 0 0 14px;
+        color: var(--primary);
+        font-size: 1.35rem;
+      }
+
+      .section p,
+      .section li {
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .section ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        overflow: hidden;
+        border-radius: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef2ff;
+        color: var(--primary);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      code {
+        background: #f1f5ff;
+        color: var(--secondary);
+        padding: 2px 8px;
+        border-radius: 8px;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 215, 0, 0.16);
+        color: #8a6b00;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+
+      @media (max-width: 640px) {
+        .hero,
+        .section,
+        .card {
+          padding: 20px;
+        }
+
+        .hero h1 {
+          font-size: 1.6rem;
+        }
+
+        th,
+        td {
+          padding: 10px;
+          font-size: 0.92rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="tag">Eco-Tourism Database View</span>
+        <h1>Database Information</h1>
+        <p>
+          This page presents the main SQLite database file used by the Eco-Tourism and Travel
+          Management Platform, including file details, table structure, relationships, and the
+          current record counts stored in the system.
+        </p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Database File</h2>
+          <strong>tourism.db</strong>
+          <span>Main SQLite database file</span>
+        </article>
+        <article class="card">
+          <h2>Database Type</h2>
+          <strong>SQLite</strong>
+          <span>Connected through SQLAlchemy</span>
+        </article>
+        <article class="card">
+          <h2>File Size</h2>
+          <strong>81920 bytes</strong>
+          <span>Current database snapshot</span>
+        </article>
+        <article class="card">
+          <h2>Tables</h2>
+          <strong>5</strong>
+          <span>Users, locations, bookings, favorites, reviews</span>
+        </article>
+      </section>
+
+      <section class="section">
+        <h2>File and Connection Details</h2>
+        <ul>
+          <li><strong>File name:</strong> <code>tourism.db</code></li>
+          <li><strong>Path:</strong> <code>New folder/backend/tourism.db</code></li>
+          <li><strong>Connection string:</strong> <code>sqlite:///.../backend/tourism.db</code></li>
+          <li><strong>Backend connection file:</strong> <code>database.py</code></li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>Current Record Counts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Table</th>
+              <th>Records</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>users</td>
+              <td>3</td>
+              <td>Stores registered user account information</td>
+            </tr>
+            <tr>
+              <td>locations</td>
+              <td>30</td>
+              <td>Stores tourism destinations with description, image, and price</td>
+            </tr>
+            <tr>
+              <td>bookings</td>
+              <td>8</td>
+              <td>Stores booking and payment-related records</td>
+            </tr>
+            <tr>
+              <td>favorites</td>
+              <td>0</td>
+              <td>Stores destinations saved by users</td>
+            </tr>
+            <tr>
+              <td>reviews</td>
+              <td>0</td>
+              <td>Stores destination ratings and review comments</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>Table Structure</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Table</th>
+              <th>Columns</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>users</td>
+              <td>id, username, email, hashed_password</td>
+            </tr>
+            <tr>
+              <td>locations</td>
+              <td>id, name, description, image_url, price_per_night, state</td>
+            </tr>
+            <tr>
+              <td>bookings</td>
+              <td>
+                id, user_id, location_id, check_in_date, check_out_date, guests, total_price,
+                booking_status, payment_status, payment_method, payment_reference, created_at,
+                pricing_breakdown
+              </td>
+            </tr>
+            <tr>
+              <td>favorites</td>
+              <td>id, user_id, location_id, created_at</td>
+            </tr>
+            <tr>
+              <td>reviews</td>
+              <td>id, user_id, location_id, rating, comment, created_at</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>Relationships</h2>
+        <ul>
+          <li><code>bookings.user_id</code> references <code>users.id</code></li>
+          <li><code>bookings.location_id</code> references <code>locations.id</code></li>
+          <li><code>favorites.user_id</code> references <code>users.id</code></li>
+          <li><code>favorites.location_id</code> references <code>locations.id</code></li>
+          <li><code>reviews.user_id</code> references <code>users.id</code></li>
+          <li><code>reviews.location_id</code> references <code>locations.id</code></li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>Role of the Database</h2>
+        <p>
+          The database acts as the central storage layer of the project. It stores user accounts,
+          destination data, trip bookings, saved favorites, and review details. The backend reads
+          and updates this database through SQLAlchemy and FastAPI routes to keep the tourism
+          platform consistent, reliable, and easy to manage.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
