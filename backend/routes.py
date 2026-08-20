@@ -551,12 +551,16 @@ def ai_chat(message_data: dict):
     if not message:
         raise HTTPException(status_code=400, detail="Message is required")
 
+    history = message_data.get("history") or []
+
     try:
-        reply = chat_with_gemini(message)
+        result = chat_with_gemini(message, history=history)
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-    return {"reply": reply, "provider": "gemini"}
+    return result
 
 @router.get("/ai/suggestions")
 def ai_suggestions():

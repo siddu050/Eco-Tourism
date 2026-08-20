@@ -1,20 +1,122 @@
-<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="256" height="256" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="eco-bg" x1="18" y1="14" x2="108" y2="114" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1A237E"/>
-      <stop offset="1" stop-color="#283593"/>
+    <!-- Island Gradients -->
+    <linearGradient id="island-grad" x1="100" y1="155" x2="100" y2="185" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#80c634"/>
+      <stop offset="40%" stop-color="#6eb428"/>
+      <stop offset="100%" stop-color="#55941d"/>
     </linearGradient>
-    <linearGradient id="eco-gold" x1="31" y1="23" x2="97" y2="105" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFE58A"/>
-      <stop offset="1" stop-color="#FFD700"/>
+
+    <!-- Palm Trunk Gradient -->
+    <linearGradient id="trunk-grad" x1="70" y1="50" x2="130" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5c646d"/>
+      <stop offset="50%" stop-color="#4a515a"/>
+      <stop offset="100%" stop-color="#383e45"/>
     </linearGradient>
+
+    <!-- Palm Fronds Bright Green -->
+    <linearGradient id="frond-light" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8fd33c"/>
+      <stop offset="100%" stop-color="#6cb526"/>
+    </linearGradient>
+
+    <!-- Palm Fronds Darker Shade -->
+    <linearGradient id="frond-dark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6ab224"/>
+      <stop offset="100%" stop-color="#4f8c17"/>
+    </linearGradient>
+
+    <!-- Shadow filter for clean depth -->
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
   </defs>
-  <circle cx="64" cy="64" r="55" fill="url(#eco-bg)"/>
-  <circle cx="64" cy="64" r="49.5" stroke="url(#eco-gold)" stroke-width="5"/>
-  <path d="M64 24L69.2 37.5L84 42.7L70.5 47.8L65.3 62L60.2 48.5L46 43.3L59.5 38.2L64 24Z" fill="url(#eco-gold)"/>
-  <path d="M40 79C45.8 64.8 56.1 57.7 71 54.4C68.8 69.8 59.8 80.8 46.1 87.6C43.6 88.8 41.1 89.8 38.4 90.5C37.5 86.6 38.2 83.3 40 79Z" fill="white"/>
-  <path d="M78.8 56.6C86.1 62 90.6 69 92.5 77.8C92.9 79.5 93.1 81.3 93.3 83.1C81.4 82.3 72.2 77.4 65.8 67.6C70.2 62.7 74.6 59.1 78.8 56.6Z" fill="#DDE7FF"/>
-  <path d="M62.7 54.2C63.3 67.9 59.8 80 51.4 91.2" stroke="#FFD700" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M51 96H77" stroke="url(#eco-gold)" stroke-width="5" stroke-linecap="round"/>
-  <path d="M46 101H82" stroke="white" stroke-opacity="0.7" stroke-width="3.5" stroke-linecap="round"/>
+
+  <g filter="url(#soft-shadow)">
+    <!-- 1. Green Island Base Mound -->
+    <path d="M 32 184 Q 100 152 168 184 Z" fill="url(#island-grad)"/>
+    <path d="M 42 182 Q 100 156 158 182 Q 100 162 42 182 Z" fill="#99dd42" opacity="0.45"/>
+
+    <!-- 2. "A" Crossbar / Inner A Element -->
+    <path d="M 85 146 L 115 146 L 119 162 L 81 162 Z" fill="#4a515a"/>
+    <path d="M 91 146 L 109 146 L 113 160 L 87 160 Z" fill="#383e45"/>
+
+    <!-- 3. Left Palm Trunk (Left leg of A) -->
+    <!-- Segmented Trunk with Palm notches -->
+    <g fill="url(#trunk-grad)" stroke="#2f343a" stroke-width="0.75" stroke-linejoin="round">
+      <!-- Trunk Base to Apex -->
+      <path d="M 76 178 L 84 178 L 86 164 L 78 164 Z"/>
+      <path d="M 78 164 L 86 164 L 88 150 L 80 150 Z"/>
+      <path d="M 80 150 L 88 150 L 91 136 L 83 136 Z"/>
+      <path d="M 83 136 L 91 136 L 94 122 L 86 122 Z"/>
+      <path d="M 86 122 L 94 122 L 96 108 L 89 108 Z"/>
+      <path d="M 89 108 L 96 108 L 92 98 L 85 98 Z"/>
+    </g>
+
+    <!-- 4. Right Taller Palm Trunk (Right leg of A extending to top palm) -->
+    <g fill="url(#trunk-grad)" stroke="#2f343a" stroke-width="0.75" stroke-linejoin="round">
+      <!-- Trunk Base to Apex -->
+      <path d="M 124 178 L 116 178 L 114 164 L 122 164 Z"/>
+      <path d="M 122 164 L 114 164 L 112 150 L 120 150 Z"/>
+      <path d="M 120 150 L 112 150 L 109 136 L 117 136 Z"/>
+      <path d="M 117 136 L 109 136 L 105 122 L 113 122 Z"/>
+      <path d="M 113 122 L 105 122 L 101 108 L 109 108 Z"/>
+      <!-- Intersection of A -->
+      <path d="M 109 108 L 101 108 L 97 94 L 104 94 Z"/>
+      <path d="M 104 94 L 97 94 L 100 80 L 107 80 Z"/>
+      <path d="M 107 80 L 100 80 L 105 68 L 112 68 Z"/>
+      <path d="M 112 68 L 105 68 L 111 56 L 117 56 Z"/>
+    </g>
+
+    <!-- 5. Smaller Palm Leaves (Left Tree) -->
+    <!-- Leaf 1: Top Left -->
+    <path d="M 88 98 C 82 82 66 84 56 94 C 64 96 76 96 88 98 Z" fill="url(#frond-light)"/>
+    <path d="M 88 98 C 80 85 68 87 56 94" stroke="#4f8c17" stroke-width="1" stroke-linecap="round"/>
+    
+    <!-- Leaf 2: Mid Left Drooping -->
+    <path d="M 87 100 C 76 94 58 102 48 116 C 58 114 74 108 87 100 Z" fill="url(#frond-dark)"/>
+    <path d="M 87 100 C 74 98 60 106 48 116" stroke="#3b6e10" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Leaf 3: Lower Left Drooping -->
+    <path d="M 86 103 C 74 106 56 118 48 136 C 58 130 72 120 86 103 Z" fill="url(#frond-light)"/>
+    <path d="M 86 103 C 72 110 58 122 48 136" stroke="#4f8c17" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Leaf 4: Right Upper -->
+    <path d="M 89 97 C 98 86 112 90 120 98 C 110 98 98 98 89 97 Z" fill="url(#frond-light)"/>
+    <path d="M 89 97 C 98 90 110 93 120 98" stroke="#4f8c17" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Leaf 5: Right Lower -->
+    <path d="M 90 100 C 98 98 110 106 116 118 C 108 112 98 106 90 100 Z" fill="url(#frond-dark)"/>
+    <path d="M 90 100 C 98 101 108 108 116 118" stroke="#3b6e10" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Left Crown Center Coconut Accent -->
+    <circle cx="87" cy="99" r="2.5" fill="#437713"/>
+    <circle cx="90" cy="100" r="2" fill="#589a1c"/>
+
+
+    <!-- 6. Taller Palm Leaves (Right Tree) -->
+    <!-- Leaf 1: Top Arching Left -->
+    <path d="M 114 56 C 104 36 84 38 72 50 C 82 52 98 52 114 56 Z" fill="url(#frond-light)"/>
+    <path d="M 114 56 C 100 40 84 42 72 50" stroke="#4f8c17" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Leaf 2: Mid Arching Left -->
+    <path d="M 112 58 C 98 50 76 60 62 76 C 76 74 96 68 112 58 Z" fill="url(#frond-dark)"/>
+    <path d="M 112 58 C 96 54 78 64 62 76" stroke="#3b6e10" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Leaf 3: Top Arching Right -->
+    <path d="M 116 55 C 126 34 148 38 160 52 C 148 54 130 54 116 55 Z" fill="url(#frond-light)"/>
+    <path d="M 116 55 C 128 38 146 42 160 52" stroke="#4f8c17" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Leaf 4: Mid Arching Right -->
+    <path d="M 116 58 C 132 52 152 64 162 82 C 148 78 130 70 116 58 Z" fill="url(#frond-dark)"/>
+    <path d="M 116 58 C 132 56 148 68 162 82" stroke="#3b6e10" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Leaf 5: Low Arching Right Droop -->
+    <path d="M 115 61 C 128 66 146 84 146 110 C 138 94 126 78 115 61 Z" fill="url(#frond-light)"/>
+    <path d="M 115 61 C 128 72 140 88 146 110" stroke="#4f8c17" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Right Crown Center Accent -->
+    <circle cx="114" cy="57" r="3" fill="#437713"/>
+    <circle cx="117" cy="58" r="2.5" fill="#589a1c"/>
+  </g>
 </svg>

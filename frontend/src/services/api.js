@@ -219,51 +219,7 @@ const deleteLocalBookingRecord = (bookingId) => {
   writeLocalBookings(filtered);
 };
 
-const buildLocalAiReply = (message) => {
-  const normalized = String(message || '').trim().toLowerCase();
 
-  if (!normalized) {
-    return 'Tell me what kind of trip you want, like beaches, mountains, heritage places, or budget stays, and I will suggest good destinations.';
-  }
-
-  if (/(hi|hello|hey)\b/.test(normalized)) {
-    return 'Hello! I can help you choose destinations, compare travel moods, and guide you to booking pages quickly.';
-  }
-
-  if (/(book|booking|reserve|payment|pay)\b/.test(normalized)) {
-    return 'To book a trip, open any destination card, continue to Smart Booking, choose your travel mode, and confirm the stay details from there.';
-  }
-
-  if (/(beach|sea|island|goa|andaman)\b/.test(normalized)) {
-    return 'For a coastal trip, start with Goa Beaches or Andaman Islands. Goa is great for easy beach stays, while Andaman is better for island scenery and flight-based travel.';
-  }
-
-  if (/(mountain|hill|cool|tea|munnar|ooty|darjeeling|ladakh)\b/.test(normalized)) {
-    return 'For cooler escapes, try Munnar Tea Gardens, Ooty Hills, Darjeeling Hills, or Ladakh Valleys depending on whether you want greenery, tea estates, or dramatic high-altitude views.';
-  }
-
-  if (/(heritage|history|fort|palace|taj|jaipur|charminar|golkonda|hampi)\b/.test(normalized)) {
-    return 'For heritage travel, explore Taj Mahal, Jaipur Palaces, Charminar, Golkonda Fort, and Hampi Ruins. These work well if you want architecture, culture, and strong sightseeing routes.';
-  }
-
-  if (/(map|route|distance|nearby)\b/.test(normalized)) {
-    return 'Use the Maps page to compare destinations, and the Smart Booking page will estimate route-aware travel pricing from your live location.';
-  }
-
-  return 'You can ask me for beach places, heritage destinations, hill stations, route help, or booking guidance, and I will point you to the best options in the app.';
-};
-
-const shouldUseLocalAiFallback = (error) => {
-  if (!error) {
-    return true;
-  }
-
-  if (error.response) {
-    return false;
-  }
-
-  return true;
-};
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -594,27 +550,366 @@ export const getAiSuggestions = async () => {
   }
 };
 
-export const sendAiMessage = async (message) => {
+const shouldUseLocalAiFallback = (error) => {
+  if (!error) return true;
+  if (!error.response) return true;
+  const status = error.response.status;
+  // Fallback on server error, 503 unavailable, 404 not found, or timeout
+  return status === 503 || status === 500 || status === 502 || status === 504 || status === 404 || error.code === 'ECONNABORTED';
+};
+
+const STATE_NAMES = new Set([
+  'kerala', 'rajasthan', 'karnataka', 'tamil nadu', 'uttarakhand',
+  'west bengal', 'maharashtra', 'telangana', 'ladakh', 'jammu & kashmir',
+  'jammu and kashmir', 'goa', 'assam', 'meghalaya', 'gujarat', 'odisha',
+  'punjab', 'uttar pradesh', 'madhya pradesh', 'andaman & nicobar',
+  'andaman and nicobar islands', 'puducherry'
+]);
+
+const findDestinationsInText = (text = '') => {
+  const q = text.toLowerCase();
+  const matched = [];
+  const seen = new Set();
+
+  // Pass 1: Exact or Primary Name match
+  for (const loc of fallbackLocations) {
+    const locName = loc.name.toLowerCase();
+    const primaryName = locName.split(' ')[0];
+    if (q.includes(locName) || (primaryName.length > 3 && !STATE_NAMES.has(primaryName) && q.includes(primaryName))) {
+      if (!seen.has(loc.id)) {
+        matched.push(loc);
+        seen.add(loc.id);
+      }
+    }
+  }
+
+  return matched;
+};
+
+const extractContextDestinationFromHistory = (history = []) => {
+  if (!Array.isArray(history)) return null;
+
+  // Check user messages first
+  for (let i = history.length - 1; i >= 0; i--) {
+    const item = history[i];
+    const isUser = item?.role === 'user' || item?.isUser === true;
+    if (!isUser) continue;
+    const text = (item?.text || item?.content || '').toLowerCase();
+    if (!text) continue;
+    const found = findDestinationsInText(text);
+    if (found.length > 0) return found[0];
+  }
+
+  // Fallback to assistant messages
+  for (let i = history.length - 1; i >= 0; i--) {
+    const item = history[i];
+    const text = (item?.text || item?.content || '').toLowerCase();
+    if (!text) continue;
+    const found = findDestinationsInText(text);
+    if (found.length > 0) return found[0];
+  }
+
+  return null;
+};
+
+const buildLocalAiReply = (message = '', history = []) => {
+  const q = message.toLowerCase().trim();
+  const contextLoc = extractContextDestinationFromHistory(history);
+
+  // 1. Booking, Payment, Support & Cancellation questions
+  if (q.includes('book') || q.includes('reserve') || q.includes('how to')) {
+    return {
+      reply: (
+        "✨ **How to Book a Stay on Indian Journeys:**\n\n" +
+        "1. **Select Destination**: Pick any of our 30 curated scenic spots from **Home** or **Discover**.\n" +
+        "2. **Choose Dates & Guests**: Customize your check-in dates and guest count.\n" +
+        "3. **Pick Transport & Add-ons**: Choose Economy/SUV cabs or flights, plus farm-to-table organic meals.\n" +
+        "4. **Instant UPI Payment**: Pay securely via dynamic QR code or UPI VPA (`9391862579@axl`).\n\n" +
+        "🛡️ *Free cancellation is available up to 48 hours before check-in.* Need direct assistance? Call **9347466496**."
+      ),
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: [],
+      followUpPrompts: ['🌴 Beach escapes', '🏔️ Mountain getaways', '📋 Cancellation policy', '📞 Contact support'],
+    };
+  }
+
+  if (q.includes('cancel') || q.includes('refund') || q.includes('cancellation')) {
+    return {
+      reply: (
+        "📋 **Cancellation & 100% Refund Policy:**\n\n" +
+        "• **100% Full Refund**: Free cancellation for all bookings requested at least **48 hours prior to check-in**.\n" +
+        "• **Instant Self-Service**: Visit **My Trips** in the menu and click **'Cancel Booking'**.\n" +
+        "• **Fast Refund Processing**: Refunds are credited back to your original UPI/Card account within **2-4 business days**.\n\n" +
+        "For urgent itinerary modifications, reach our 24/7 concierge at **9347466496**."
+      ),
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: [],
+      followUpPrompts: ['✨ How to book', '💳 Payment methods', '📞 Call concierge', '🌿 View top stays'],
+    };
+  }
+
+  if (q.includes('payment') || q.includes('upi') || q.includes('pay') || q.includes('google pay') || q.includes('phonepe') || q.includes('paytm')) {
+    return {
+      reply: (
+        "💳 **Fast & Secure Payment Options:**\n\n" +
+        "• **Instant UPI**: Scan the dynamic QR code on checkout or pay to VPA `9391862579@axl` (Google Pay, PhonePe, Paytm, BHIM).\n" +
+        "• **Instant Confirmation**: Your booking reference number and printable voucher are generated immediately.\n" +
+        "• **View Receipts**: Access all trip receipts anytime under **My Trips**."
+      ),
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: [],
+      followUpPrompts: ['✨ How to book', '📋 Cancellation policy', '📞 Contact support', '🗺️ View live maps'],
+    };
+  }
+
+  if (q.includes('contact') || q.includes('customer care') || q.includes('phone') || q.includes('support') || q.includes('call') || q.includes('helpline')) {
+    return {
+      reply: (
+        "📞 **Indian Journeys Customer Care & Trip Concierge:**\n\n" +
+        "• **Direct Helpline**: [9347466496](tel:9347466496)\n" +
+        "• **Availability**: 7 Days a week (8:00 AM – 10:00 PM IST)\n" +
+        "• **Services**: Booking assistance, custom route planning, local cab dispatch, and emergency trip support."
+      ),
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: [],
+      followUpPrompts: ['✨ How to book', '🏰 Rajasthan Palaces', '🌴 Kerala Backwaters', '❄️ Winter getaways'],
+    };
+  }
+
+  // 2. Itinerary & Trip Planning
+  if (q.includes('itinerary') || q.includes('3 day') || q.includes('3-day') || q.includes('5 day') || q.includes('5-day') || q.includes('weekend') || q.includes('plan')) {
+    if (q.includes('kerala') || q.includes('munnar') || q.includes('backwater')) {
+      const suggested = fallbackLocations.filter((l) => ['Kerala Backwaters', 'Munnar Tea Gardens'].includes(l.name));
+      return {
+        reply: (
+          "🌴 **Curated 3-Day Kerala Backwaters & Munnar Itinerary:**\n\n" +
+          "• **Day 1 (Alleppey Backwaters)**: Check into a solar-powered eco houseboat. Cruise through scenic palm canals and enjoy authentic Karimeen fish curry.\n" +
+          "• **Day 2 (Alleppey → Munnar)**: Scenic mountain drive past Cheeyappara waterfalls. Afternoon walk through organic tea plantations and Pothamedu sunset.\n" +
+          "• **Day 3 (Munnar Highlands)**: Early morning trek to Top Station for panoramic valley clouds. Spice plantation walk and tea museum tour before departure.\n\n" +
+          "💰 *Estimated stay budget: Rs. 7,000 – 9,000 for 2 nights.*"
+        ),
+        provider: 'local-knowledge-engine',
+        suggestedDestinations: suggested,
+        followUpPrompts: ['☕ Munnar tea gardens', '🛶 Kerala Backwaters', '✨ How to book', '📞 Call concierge'],
+      };
+    }
+
+    if (q.includes('rajasthan') || q.includes('jaipur') || q.includes('udaipur')) {
+      const suggested = fallbackLocations.filter((l) => ['Jaipur Palaces', 'Udaipur Lakes', 'Jaisalmer Fort'].includes(l.name));
+      return {
+        reply: (
+          "🏰 **Curated 3-Day Royal Rajasthan Heritage Route:**\n\n" +
+          "• **Day 1 (Jaipur - Pink City)**: Sunrise at Hawa Mahal, morning exploration of Amber Fort, and afternoon walk through Johari Bazaar.\n" +
+          "• **Day 2 (Jaipur → Udaipur / Pushkar)**: Scenic transfer to the City of Lakes. Evening romantic boat cruise on Lake Pichola past Jag Mandir.\n" +
+          "• **Day 3 (Udaipur Palaces)**: Visit the grand City Palace and Bagore Ki Haveli folk dance show before farewell dinner.\n\n" +
+          "💰 *Estimated stay budget: Rs. 7,500 – 10,500 for 2 nights.*"
+        ),
+        provider: 'local-knowledge-engine',
+        suggestedDestinations: suggested,
+        followUpPrompts: ['🏰 Jaipur Palaces', '👑 Udaipur Lakes', '✨ How to book', '📞 Concierge'],
+      };
+    }
+
+    const suggested = fallbackLocations.filter((l) => ['Taj Mahal', 'Jaipur Palaces', 'Varanasi Ghats'].includes(l.name));
+    return {
+      reply: (
+        "🗺️ **Suggested 3-Day Classic Golden Triangle & Heritage Itinerary:**\n\n" +
+        "• **Day 1 (Agra)**: Dawn sunrise visit to the Taj Mahal to beat crowds. Afternoon tour of Agra Fort and marble inlay artisan workshops.\n" +
+        "• **Day 2 (Agra → Jaipur)**: Scenic drive via Fatehpur Sikri. Evening arrival in the Pink City with rooftop Dal Baati dinner.\n" +
+        "• **Day 3 (Jaipur)**: Electric vehicle tour of Amber Fort, Hawa Mahal photo stop, and artisan handicraft shopping.\n\n" +
+        "✨ *Explore full day-by-day itineraries under our **Travel Guides** tab!*"
+      ),
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: suggested,
+      followUpPrompts: ['🕌 Taj Mahal', '🏰 Jaipur Palaces', '✨ How to book', '📞 Call concierge'],
+    };
+  }
+
+  // 3. Direct Destination Search & Specific Queries (Food, Best Time, Price)
+  const matchedLocs = findDestinationsInText(q);
+  if (matchedLocs.length === 1) {
+    const loc = matchedLocs[0];
+    if (q.includes('food') || q.includes('eat') || q.includes('cuisine') || q.includes('dish') || q.includes('specialty')) {
+      return {
+        reply: (
+          `🍲 **Local Dining & Food Guide for ${loc.name} (${loc.state}):**\n\n` +
+          `• **Specialties**: Authentic regional delicacies, organic farm dining, and local seasonal tea/spices.\n` +
+          `• **Stay Rate**: Starting from **Rs. ${loc.price_per_night.toLocaleString('en-IN')}/night**\n` +
+          `• **Eco Certified**: Farm-to-table organic meal options available on checkout.\n\n` +
+          `Would you like to plan a 3-day itinerary or check the best time to visit?`
+        ),
+        provider: 'local-knowledge-engine',
+        suggestedDestinations: [loc],
+        followUpPrompts: [`🗓️ 3-day ${loc.name} plan`, `☀️ Best time for ${loc.name}`, `💰 Budget breakdown`, '✨ How to book'],
+      };
+    }
+
+    return {
+      reply: (
+        `📍 **${loc.name} — ${loc.state}**\n\n` +
+        `• **Stay Rate**: Starting from **Rs. ${loc.price_per_night.toLocaleString('en-IN')}/night**\n` +
+        `• **About**: ${loc.description}\n` +
+        `• **Eco Certified**: Sustainable architecture, renewable solar power, and local organic cuisine.\n\n` +
+        `👉 *Click the card below to see live distance from your GPS location and reserve your stay!*`
+      ),
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: [loc],
+      followUpPrompts: [`🗓️ 3-day ${loc.name} itinerary`, `🍲 Food in ${loc.name}`, `💰 Budget breakdown`, '✨ How to book'],
+    };
+  }
+
+  // 4. Contextual follow-up resolution from history
+  const isFollowup = ['best time', 'when to visit', 'price', 'cost', 'how much', 'food', 'eat', 'dish', 'weather', 'itinerary'].some((k) => q.includes(k));
+  if (isFollowup && contextLoc && !fallbackLocations.some((l) => q.includes(l.name.toLowerCase()))) {
+    const loc = contextLoc;
+    if (q.includes('food') || q.includes('eat') || q.includes('dish') || q.includes('cuisine')) {
+      return {
+        reply: (
+          `🍲 **Local Dining & Food Guide for ${loc.name} (${loc.state}):**\n\n` +
+          `• **Specialties**: Authentic regional delicacies, organic farm dining, and local seasonal tea/spices.\n` +
+          `• **Stay Rate**: Starting from **Rs. ${loc.price_per_night.toLocaleString('en-IN')}/night**\n` +
+          `• **Eco Certified**: Farm-to-table organic meal options available on checkout.\n\n` +
+          `Would you like to plan a 3-day itinerary or check the best time to visit?`
+        ),
+        provider: 'local-knowledge-engine',
+        suggestedDestinations: [loc],
+        followUpPrompts: [`🗓️ 3-day ${loc.name} plan`, `☀️ Best time for ${loc.name}`, `💰 Budget breakdown`, '✨ How to book'],
+      };
+    }
+
+    if (q.includes('best time') || q.includes('when to visit') || q.includes('weather') || q.includes('season')) {
+      return {
+        reply: (
+          `☀️ **Best Time to Visit ${loc.name} (${loc.state}):**\n\n` +
+          `• **Peak Season**: October to March for cool, pleasant outdoor weather.\n` +
+          `• **Night Rate**: **Rs. ${loc.price_per_night.toLocaleString('en-IN')}/night**\n` +
+          `• **Highlights**: ${loc.description}\n\n` +
+          `Click the card below to view live coordinates or book your eco-stay!`
+        ),
+        provider: 'local-knowledge-engine',
+        suggestedDestinations: [loc],
+        followUpPrompts: [`🗓️ 3-day ${loc.name} plan`, `🍲 Food in ${loc.name}`, '✨ How to book', '📍 Live Maps'],
+      };
+    }
+
+    if (q.includes('price') || q.includes('cost') || q.includes('how much') || q.includes('budget')) {
+      return {
+        reply: (
+          `💰 **Pricing & Budget Breakdown for ${loc.name} (${loc.state}):**\n\n` +
+          `• **Verified Eco Stay**: **Rs. ${loc.price_per_night.toLocaleString('en-IN')}/night**\n` +
+          `• **Estimated 3-Day Trip for 2**: ~Rs. ${(loc.price_per_night * 2 + 3500).toLocaleString('en-IN')}\n` +
+          `• **Inclusions**: Organic breakfast, solar-powered room, and free cancellation up to 48 hours before check-in.`
+        ),
+        provider: 'local-knowledge-engine',
+        suggestedDestinations: [loc],
+        followUpPrompts: [`🗓️ 3-day ${loc.name} plan`, '✨ How to book', '💳 UPI payment', '📞 Call concierge'],
+      };
+    }
+  }
+
+  // 4. Budget-specific queries
+  if (q.includes('budget') || q.includes('under 3000') || q.includes('under 2500') || q.includes('cheap') || q.includes('low price') || q.includes('affordable')) {
+    const budgetSpots = fallbackLocations.filter((loc) => loc.price_per_night <= 3000).slice(0, 4);
+    const list = budgetSpots
+      .map((loc) => `• **${loc.name}** (${loc.state}) — **Rs. ${loc.price_per_night}/night**\n  _${loc.description}_`)
+      .join('\n\n');
+    return {
+      reply: `🌿 **Top Budget-Friendly Eco Stays (Under Rs. 3,000 / night):**\n\n${list}\n\n💡 *Tip: All stays include verified solar energy, local organic dining, and 48-hour free cancellation.*`,
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: budgetSpots,
+      followUpPrompts: ['🏖️ Beach escapes', '🏔️ Mountain getaways', '✨ How to book', '🗺️ View on Map'],
+    };
+  }
+
+  // 5. Beach, Coastal & Island queries
+  if (q.includes('beach') || q.includes('goa') || q.includes('andaman') || q.includes('sea') || q.includes('coast') || q.includes('ocean')) {
+    const coast = fallbackLocations.filter((l) => ['Goa', 'Andaman and Nicobar Islands', 'Puducherry', 'Kerala', 'Odisha'].includes(l.state)).slice(0, 4);
+    const list = coast.map((loc) => `• **${loc.name}** (${loc.state}) — **Rs. ${loc.price_per_night}/night**\n  _${loc.description}_`).join('\n\n');
+    return {
+      reply: `🏖️ **Top Beach & Coastal Escapes in India:**\n\n${list}\n\n🌊 *Best Season: October to April for clear waters, scuba diving, and sunset cruises.*`,
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: coast,
+      followUpPrompts: ['🌴 Goa beaches guide', '🌊 Andaman Islands plan', '✨ How to book', '📞 Contact support'],
+    };
+  }
+
+  // 6. Mountain & Hill station queries
+  if (q.includes('mountain') || q.includes('hill') || q.includes('munnar') || q.includes('darjeeling') || q.includes('ooty') || q.includes('ladakh') || q.includes('trek')) {
+    const hills = fallbackLocations.filter((l) => ['Kerala', 'West Bengal', 'Tamil Nadu', 'Ladakh', 'Uttarakhand', 'Jammu and Kashmir', 'Karnataka'].includes(l.state)).slice(0, 4);
+    const list = hills.map((loc) => `• **${loc.name}** (${loc.state}) — **Rs. ${loc.price_per_night}/night**\n  _${loc.description}_`).join('\n\n');
+    return {
+      reply: `🏔️ **Scenic Mountain & Hill Station Stays:**\n\n${list}\n\n🌲 *Enjoy fresh pine air, organic tea estate trails, and panoramic Himalayan/Ghats viewpoints.*`,
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: hills,
+      followUpPrompts: ['☕ Munnar tea gardens', '❄️ Ladakh valleys', '🌸 Valley of Flowers trek', '✨ How to book'],
+    };
+  }
+
+  // 7. Heritage & Royal Palaces
+  if (q.includes('heritage') || q.includes('fort') || q.includes('palace') || q.includes('history') || q.includes('rajasthan') || q.includes('jaipur') || q.includes('hampi')) {
+    const heritage = fallbackLocations.filter((l) => ['Rajasthan', 'Karnataka', 'Madhya Pradesh', 'Uttar Pradesh', 'Telangana', 'Maharashtra'].includes(l.state)).slice(0, 4);
+    const list = heritage.map((loc) => `• **${loc.name}** (${loc.state}) — **Rs. ${loc.price_per_night}/night**\n  _${loc.description}_`).join('\n\n');
+    return {
+      reply: `🏰 **Royal Heritage, Forts & UNESCO Wonders:**\n\n${list}\n\n👑 *Best Time: October to March for pleasant heritage walks and desert safaris.*`,
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: heritage,
+      followUpPrompts: ['🕌 3-day Golden Triangle', '🏰 Royal Rajasthan route', '🛕 Hampi ruins guide', '✨ How to book'],
+    };
+  }
+
+  // 8. Itinerary Planning
+  if (q.includes('itinerary') || q.includes('3 day') || q.includes('5 day') || q.includes('weekend') || q.includes('plan')) {
+    const suggested = fallbackLocations.filter((l) => ['Kerala Backwaters', 'Munnar Tea Gardens', 'Taj Mahal'].includes(l.name));
+    return {
+      reply: (
+        "🗺️ **Curated 3-Day Scenic Route Recommendation:**\n\n" +
+        "• **Day 1**: Arrive at base city, check into an eco-certified stay, and explore local heritage bazaars.\n" +
+        "• **Day 2**: Sunrise nature walk with a certified naturalist guide, organic farm lunch, and evening sunset viewpoint.\n" +
+        "• **Day 3**: Cultural artisan workshop (pottery/tea tasting/spice walk) and relaxed departure.\n\n" +
+        "✨ *Explore full day-by-day itineraries under our **Travel Guides** tab!*"
+      ),
+      provider: 'local-knowledge-engine',
+      suggestedDestinations: suggested,
+      followUpPrompts: ['🌴 3-day Kerala plan', '🏰 Royal Rajasthan route', '✨ How to book', '📞 Call concierge'],
+    };
+  }
+
+  // 9. Default warm discovery fallback
+  const featured = fallbackLocations.slice(0, 3);
+  return {
+    reply: (
+      "Namaste! 🙏 I'm your Indian Journeys AI Travel Assistant. Here is how I can help you plan:\n\n" +
+      "• **Destinations**: Ask about *Goa beaches*, *Munnar tea hills*, *Taj Mahal*, or *Ladakh valleys*.\n" +
+      "• **Budget Planning**: Ask for *stays under Rs. 3,000* or *luxury heritage palaces*.\n" +
+      "• **Custom Itineraries**: Ask for *3-day weekend trips* or *seasonal getaways*.\n" +
+      "• **Booking Help**: Ask *how to book*, *UPI payment*, *cancellation policy*, or call **9347466496**.\n\n" +
+      "What destination or experience can I help you discover?"
+    ),
+    provider: 'local-knowledge-engine',
+    suggestedDestinations: featured,
+    followUpPrompts: ['🌴 Goa Beaches', '⛰️ 3-day Munnar itinerary', '🏰 Royal Rajasthan route', '💰 Stays under Rs. 3000', '✨ How to book'],
+  };
+};
+
+export const sendAiMessage = async (message, history = []) => {
   try {
     const response = await requestWithFallback({
       url: '/ai/chat',
       method: 'post',
-      data: { message },
+      data: { message, history },
       timeout: AI_REQUEST_TIMEOUT_MS,
     });
     return response.data;
   } catch (error) {
     if (shouldUseLocalAiFallback(error)) {
-      console.error('Falling back to local AI chat reply', error);
-      return {
-        reply: buildLocalAiReply(message),
-        provider: 'local-fallback',
-      };
+      console.warn('Falling back to local AI chat reply', error);
+      return buildLocalAiReply(message, history);
     }
 
     throw error;
   }
 };
+
 
 export const resolveImageUrl = (imageUrl) => {
   if (!imageUrl) {

@@ -1,44 +1,68 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Crosshair, ExternalLink, MapPinned, Navigation, Map as MapIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  Crosshair,
+  ExternalLink,
+  MapPinned,
+  Navigation,
+  Compass,
+  ArrowRight,
+  Sparkles,
+  Car,
+  Clock,
+  Map as MapIcon,
+  ShieldCheck,
+  Star,
+} from 'lucide-react';
 import { searchLocations, resolveImageUrl, FALLBACK_IMAGE_URL } from '../services/api';
 import { fallbackLocations } from '../data/fallbackLocations';
 import { destinationCoordinates } from '../data/siteContent';
+import { useToast } from '../context/ToastContext';
+import InteractiveIndiaMap from '../components/InteractiveIndiaMap';
 
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-const INDIA_BOUNDS = { minLat: 6, maxLat: 37.5, minLon: 68, maxLon: 97.5 };
+const REGIONS = [
+  { id: 'all', label: 'All India (30)', count: 30 },
+  { id: 'north', label: 'North India 🏔️', states: ['Uttar Pradesh', 'Rajasthan', 'Uttarakhand', 'Punjab', 'Ladakh', 'Jammu and Kashmir'] },
+  { id: 'south', label: 'South India 🌴', states: ['Kerala', 'Karnataka', 'Tamil Nadu', 'Telangana', 'Puducherry', 'Andaman and Nicobar Islands'] },
+  { id: 'west', label: 'West India 🏜️', states: ['Goa', 'Maharashtra', 'Gujarat'] },
+  { id: 'east', label: 'East & NE 🌿', states: ['West Bengal', 'Meghalaya', 'Assam', 'Odisha', 'Madhya Pradesh'] },
+];
 
-const createEmbedUrl = (lat, lon, zoomLat = 0.35, zoomLon = 0.5) => {
-  const left = clamp(lon - zoomLon, -180, 180);
-  const right = clamp(lon + zoomLon, -180, 180);
-  const bottom = clamp(lat - zoomLat, -90, 90);
-  const top = clamp(lat + zoomLat, -90, 90);
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${lat}%2C${lon}`;
+const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
 };
 
-const projectToMap = ({ lat, lon }) => {
-  const x = ((lon - INDIA_BOUNDS.minLon) / (INDIA_BOUNDS.maxLon - INDIA_BOUNDS.minLon)) * 100;
-  const y = ((INDIA_BOUNDS.maxLat - lat) / (INDIA_BOUNDS.maxLat - INDIA_BOUNDS.minLat)) * 100;
-  return {
-    left: `${clamp(x, 6, 94)}%`,
-    top: `${clamp(y, 8, 92)}%`,
-  };
-};
+const initialMappedLocations = fallbackLocations
+  .filter((item) => destinationCoordinates[item.name])
+  .map((item) => ({ ...item, coords: destinationCoordinates[item.name] }));
 
-const initialMappedLocations = fallbackLocations.filter((item) => destinationCoordinates[item.name]);
-
-const Maps = () => {
+export const Maps = () => {
   const [locations, setLocations] = useState(initialMappedLocations);
-  const [selectedId, setSelectedId] = useState(initialMappedLocations[0] ? String(initialMappedLocations[0].id) : '');
+  const [selectedId, setSelectedId] = useState(initialMappedLocations[0] ? String(initialMappedLocations[0].id) : '1');
+  const [selectedRegion, setSelectedRegion] = useState('all');
   const [userPosition, setUserPosition] = useState(null);
-  const [geoStatus, setGeoStatus] = useState('Requesting your location...');
+  const [geoStatus, setGeoStatus] = useState('Locating your GPS coordinates...');
+  const { addToast } = useToast();
 
   useEffect(() => {
     const loadLocations = async () => {
       try {
         const data = await searchLocations({});
-        const mapped = data.filter((item) => destinationCoordinates[item.name]);
+        const mapped = data
+          .filter((item) => destinationCoordinates[item.name])
+          .map((item) => ({ ...item, coords: destinationCoordinates[item.name] }));
         setLocations(mapped);
-        if (mapped.length > 0) {
+        if (mapped.length > 0 && !selectedId) {
           setSelectedId(String(mapped[0].id));
         }
       } catch (error) {
@@ -61,31 +85,39 @@ const Maps = () => {
           lat: position.coords.latitude,
           lon: position.coords.longitude,
         });
-        setGeoStatus('Your GPS location is ready.');
+        setGeoStatus('Your live GPS radar is active.');
       },
       () => {
-        setGeoStatus('Location access was blocked, so destination maps are still available below.');
+        setGeoStatus('GPS access was blocked. India map remains fully interactive.');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }, []);
 
+  const filteredLocations = useMemo(() => {
+    if (selectedRegion === 'all') return locations;
+    const regionObj = REGIONS.find((r) => r.id === selectedRegion);
+    if (!regionObj || !regionObj.states) return locations;
+    return locations.filter((loc) => regionObj.states.includes(loc.state));
+  }, [locations, selectedRegion]);
+
   const selectedLocation = useMemo(
-    () => locations.find((location) => String(location.id) === selectedId) || null,
+    () => locations.find((location) => String(location.id) === selectedId) || locations[0] || null,
     [locations, selectedId]
-  );
-  const plottedLocations = useMemo(
-    () =>
-      locations.map((location) => ({
-        ...location,
-        coords: destinationCoordinates[location.name],
-      })),
-    [locations]
   );
 
   const selectedCoords = selectedLocation ? destinationCoordinates[selectedLocation.name] : null;
-  const destinationMapUrl = selectedCoords ? createEmbedUrl(selectedCoords.lat, selectedCoords.lon) : '';
-  const userMapUrl = userPosition ? createEmbedUrl(userPosition.lat, userPosition.lon, 0.2, 0.2) : '';
+
+  const distanceKm = useMemo(() => {
+    if (!userPosition || !selectedCoords) return null;
+    return calculateDistanceKm(userPosition.lat, userPosition.lon, selectedCoords.lat, selectedCoords.lon);
+  }, [userPosition, selectedCoords]);
+
+  const estimatedDrivingHours = useMemo(() => {
+    if (!distanceKm) return null;
+    return Math.max(1, Math.round(distanceKm / 55));
+  }, [distanceKm]);
+
   const directionsUrl =
     userPosition && selectedCoords
       ? `https://www.google.com/maps/dir/?api=1&origin=${userPosition.lat},${userPosition.lon}&destination=${selectedCoords.lat},${selectedCoords.lon}&travelmode=driving`
@@ -93,71 +125,92 @@ const Maps = () => {
         ? `https://www.google.com/maps/search/?api=1&query=${selectedCoords.lat},${selectedCoords.lon}`
         : '#';
 
+  const copyCoords = () => {
+    if (selectedCoords) {
+      const coordStr = `${selectedCoords.lat.toFixed(4)}° N, ${selectedCoords.lon.toFixed(4)}° E`;
+      navigator.clipboard?.writeText(coordStr);
+      addToast(`Copied ${selectedLocation.name} GPS coordinates: ${coordStr}`, 'success');
+    }
+  };
+
+  const handleSelectLocation = (loc) => {
+    setSelectedId(String(loc.id));
+    addToast(`Focused on ${loc.name}, ${loc.state}`, 'info', 2000);
+  };
+
   return (
     <div className="page-stack">
+      {/* Hero */}
       <section className="page-hero page-hero--maps">
         <div className="page-hero__content">
-          <p className="section-eyebrow">Maps</p>
-          <h1>Track your current GPS position and compare it with your next destination.</h1>
+          <div className="hero-badge">
+            <MapPinned size={15} />
+            <span>Interactive India Tourism Map</span>
+          </div>
+          <h1>Explore 30 handpicked destinations across India on an interactive live map.</h1>
           <p className="section-copy">
-            This page gives you a live location section, a destination map preview, and a quick route handoff to Google Maps.
+            Navigate the Indian subcontinent with real terrain, scenic eco-routes, live GPS distance calculations, and turn-by-turn route handoff.
           </p>
         </div>
 
         <div className="orbital-card">
-          <MapPinned size={26} />
-          <p>{geoStatus}</p>
+          <Crosshair size={24} className="text-accent" />
+          <div>
+            <strong>GPS Radar</strong>
+            <p>{geoStatus}</p>
+          </div>
         </div>
       </section>
 
-      <section className="maps-layout">
-        <div className="map-panel">
-          <div className="section-heading">
-            <div>
-              <p className="section-eyebrow">Your GPS</p>
-              <h2 className="section-title">Current location</h2>
-            </div>
-            <Crosshair size={20} />
-          </div>
+      {/* Regional Tabs */}
+      <section className="category-bar-section">
+        <div className="category-bar">
+          {REGIONS.map((region) => (
+            <button
+              key={region.id}
+              type="button"
+              className={`category-pill${selectedRegion === region.id ? ' category-pill--active' : ''}`}
+              onClick={() => setSelectedRegion(region.id)}
+            >
+              <span>{region.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
-          {userPosition ? (
-            <>
-              <div className="map-meta-card">
-                <strong>Latitude:</strong> <span>{userPosition.lat.toFixed(5)}</span>
-                <strong>Longitude:</strong> <span>{userPosition.lon.toFixed(5)}</span>
-              </div>
-              <iframe
-                className="map-frame"
-                title="Your current location"
-                src={userMapUrl}
-                loading="lazy"
-              />
-            </>
-          ) : (
-            <div className="status-panel">{geoStatus}</div>
+      {/* Main Interactive India Map & Selected Destination Card */}
+      <section className="section-block">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">Interactive Geographical Map</p>
+            <h2 className="section-title">
+              Click any pinpoint on India to inspect destination ({filteredLocations.length} locations)
+            </h2>
+          </div>
+          {distanceKm && (
+            <div className="rating-chip rating-chip--inline">
+              <Car size={14} />
+              <span>{distanceKm.toLocaleString('en-IN')} km from your location</span>
+            </div>
           )}
         </div>
 
-        <div className="map-panel">
-          <div className="section-heading">
-            <div>
-              <p className="section-eyebrow">Destination Map</p>
-              <h2 className="section-title">Pick a place to explore</h2>
-            </div>
-            <Navigation size={20} />
+        <div className="map-explorer-layout">
+          {/* Interactive Leaflet India Map */}
+          <div className="map-canvas-container">
+            <InteractiveIndiaMap
+              locations={filteredLocations}
+              selectedLocation={selectedLocation}
+              onSelectLocation={handleSelectLocation}
+              userPosition={userPosition}
+              activeRegion={selectedRegion}
+            />
           </div>
 
-          <select className="input-field" value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
-            {locations.map((location) => (
-              <option key={location.id} value={location.id}>
-                {location.name}
-              </option>
-            ))}
-          </select>
-
+          {/* Selected Destination Card */}
           {selectedLocation && selectedCoords && (
-            <>
-              <div className="map-location-card">
+            <aside className="map-selection-card animate-fade-in">
+              <div className="map-selection-card__media">
                 <img
                   src={resolveImageUrl(selectedLocation.image_url)}
                   alt={selectedLocation.name}
@@ -166,90 +219,94 @@ const Maps = () => {
                     event.currentTarget.src = FALLBACK_IMAGE_URL;
                   }}
                 />
-                <div>
-                  <h3>{selectedLocation.name}</h3>
-                  <p>{selectedLocation.state}</p>
-                  <span>
-                    {selectedCoords.lat.toFixed(4)}, {selectedCoords.lon.toFixed(4)}
-                  </span>
-                </div>
+                <span className="map-selection-tag">{selectedLocation.state}</span>
               </div>
 
-              <iframe
-                className="map-frame"
-                title={`${selectedLocation.name} map`}
-                src={destinationMapUrl}
-                loading="lazy"
-              />
+              <div className="map-selection-card__body">
+                <div className="map-selection-header">
+                  <div>
+                    <span className="section-eyebrow">Selected Destination</span>
+                    <h3>{selectedLocation.name}</h3>
+                  </div>
+                  <div className="rate-badge-sm">
+                    Rs. {selectedLocation.price_per_night} / night
+                  </div>
+                </div>
 
-              <a className="btn-primary map-route-button" href={directionsUrl} target="_blank" rel="noreferrer">
-                Open map location <ExternalLink size={16} />
-              </a>
-            </>
+                <p>{selectedLocation.description}</p>
+
+                <div className="map-selection-card__meta">
+                  <button
+                    type="button"
+                    className="coord-chip"
+                    onClick={copyCoords}
+                    title="Click to copy GPS coordinates"
+                  >
+                    <MapPinned size={14} />
+                    <span>{selectedCoords.lat.toFixed(4)}° N, {selectedCoords.lon.toFixed(4)}° E</span>
+                  </button>
+
+                  {distanceKm && (
+                    <div className="distance-badge">
+                      <Clock size={14} />
+                      <span>~{estimatedDrivingHours} hrs drive ({distanceKm.toLocaleString('en-IN')} km)</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="map-selection-actions">
+                  <a
+                    className="btn-primary"
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Google Maps Directions <ExternalLink size={15} />
+                  </a>
+                  <Link
+                    to={`/location/${selectedLocation.id}/book`}
+                    className="btn-secondary"
+                  >
+                    Reserve Stay <ArrowRight size={15} />
+                  </Link>
+                </div>
+              </div>
+            </aside>
           )}
         </div>
       </section>
 
+      {/* Horizontal Carousel Strip of Destinations */}
       <section className="section-block">
-        <div className="section-heading">
-          <div>
-            <p className="section-eyebrow">All Destinations</p>
-            <h2 className="section-title">Interactive tourist map with {locations.length} clickable pins</h2>
-          </div>
-          <MapIcon size={20} />
+        <div className="section-heading-sm">
+          <Sparkles size={16} className="text-accent" />
+          <span>Quick Switch Destination ({locations.length} Stops):</span>
         </div>
-
-        <div className="map-explorer">
-          <div className="tourist-map-board">
-            <div className="tourist-map-board__backdrop" />
-            <div className="tourist-map-board__shape" />
-
-            {plottedLocations.map((location) => {
-              const isActive = String(location.id) === selectedId;
-              const pinPosition = projectToMap(location.coords);
-
-              return (
-                <button
-                  key={location.id}
-                  type="button"
-                  className={`tourist-map-pin${isActive ? ' tourist-map-pin--active' : ''}`}
-                  style={pinPosition}
-                  onClick={() => setSelectedId(String(location.id))}
-                  aria-label={`Show ${location.name} on map`}
-                >
-                  <span className="tourist-map-pin__dot" />
-                  <span className="tourist-map-pin__label">{location.name}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedLocation && selectedCoords && (
-            <aside className="map-selection-card">
-              <img
-                src={resolveImageUrl(selectedLocation.image_url)}
-                alt={selectedLocation.name}
-                onError={(event) => {
-                  event.currentTarget.onerror = null;
-                  event.currentTarget.src = FALLBACK_IMAGE_URL;
-                }}
-              />
-              <div className="map-selection-card__body">
-                <p className="section-eyebrow">Selected stop</p>
-                <h3>{selectedLocation.name}</h3>
-                <p>{selectedLocation.description}</p>
-                <div className="map-selection-card__meta">
-                  <span>{selectedLocation.state}</span>
-                  <span>
-                    {selectedCoords.lat.toFixed(4)}, {selectedCoords.lon.toFixed(4)}
-                  </span>
+        <div className="map-destinations-strip">
+          {locations.map((loc) => {
+            const isSelected = selectedLocation && selectedLocation.id === loc.id;
+            return (
+              <button
+                key={loc.id}
+                type="button"
+                className={`map-strip-card${isSelected ? ' map-strip-card--selected' : ''}`}
+                onClick={() => handleSelectLocation(loc)}
+              >
+                <img
+                  src={resolveImageUrl(loc.image_url)}
+                  alt={loc.name}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = FALLBACK_IMAGE_URL;
+                  }}
+                />
+                <div className="map-strip-card__info">
+                  <strong>{loc.name}</strong>
+                  <span>{loc.state}</span>
                 </div>
-                <a className="btn-secondary" href={directionsUrl} target="_blank" rel="noreferrer">
-                  Open in maps <ExternalLink size={16} />
-                </a>
-              </div>
-            </aside>
-          )}
+              </button>
+            );
+          })}
         </div>
       </section>
     </div>
