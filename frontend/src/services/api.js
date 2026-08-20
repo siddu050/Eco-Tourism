@@ -1,12 +1,16 @@
 import axios from 'axios';
 import { fallbackLocations } from '../data/fallbackLocations';
 
+const envApiUrl = typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL
+  ? String(import.meta.env.VITE_API_URL).trim().replace(/\/$/, '')
+  : null;
+
 const browserHost = typeof window !== 'undefined' && window.location?.hostname
   ? window.location.hostname
   : '127.0.0.1';
 
 const apiHosts = Array.from(new Set([browserHost, '127.0.0.1', 'localhost']));
-const REQUEST_TIMEOUT_MS = 1200;
+const REQUEST_TIMEOUT_MS = 1500;
 const AI_REQUEST_TIMEOUT_MS = 15000;
 const LOCAL_BOOKINGS_KEY = 'eco_tourism_local_bookings';
 const LOCAL_BOOKING_ID_BASE = 100000;
@@ -19,7 +23,7 @@ export const FALLBACK_AI_SUGGESTIONS = [
   { title: 'Look for mountain and hill-station escapes', search_term: 'Munnar' },
 ];
 
-export const API_URL = `http://${apiHosts[0]}:8000`;
+export const API_URL = envApiUrl || `http://${apiHosts[0]}:8000`;
 export const FALLBACK_IMAGE_URL = '/static/images/default_destination.png';
 export const UPI_ID = '9391862579@axl';
 
@@ -28,6 +32,14 @@ const api = axios.create({
 });
 
 const requestWithFallback = async (config) => {
+  if (envApiUrl) {
+    return await api.request({
+      ...config,
+      baseURL: envApiUrl,
+      timeout: config.timeout ?? REQUEST_TIMEOUT_MS,
+    });
+  }
+
   let lastError;
 
   for (const host of apiHosts) {
